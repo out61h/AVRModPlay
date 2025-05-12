@@ -194,7 +194,7 @@ void on_message(bool condition, uint8_t count, ...) {
   va_start(ap, count);
 
   for (uint8_t i = 0; i != count; ++i) {
-    fprintf(stderr, "%02X", (uint8_t)va_arg(*ap, int));
+    fprintf(stderr, "%02X", va_arg(ap, int));
     if (count - 1 != i)
       fprintf(stderr, ":");
   }
@@ -321,5 +321,5 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

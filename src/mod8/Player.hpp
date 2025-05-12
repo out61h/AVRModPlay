@@ -760,9 +760,10 @@ private:
 
         case 0xE:
           {
+            const uint8_t ext_effect = param & 0xf0U;
             const uint8_t ext_param = lo_nibble(param);
 
-            switch (param & 0xf0U) {
+            switch (ext_effect) {
               case 0x10:  // Fine Portamento Up
                 channel.dec_period(ext_param);
                 break;

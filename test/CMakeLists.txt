@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.19)
+
+include(CTest)
 
 project(AvrModPlayTest VERSION 0.1 LANGUAGES CXX)
 
@@ -28,3 +30,25 @@ if( MSVC )
 
     target_compile_options(${PROJECT_NAME} PRIVATE ${MSVC_FLAGS})
 endif()
+
+file(GLOB mod_files "${CMAKE_SOURCE_DIR}/extras/songs/mod/*.mod")
+foreach(mod_file ${mod_files})
+    # file download <URL> + check md5
+    get_filename_component (mod_name ${mod_file} NAME)
+    file(MD5 ${mod_file} mod_md5)
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/hash/${mod_name}.md5" precalc_mod_md5)
+    if(NOT ${mod_md5} STREQUAL ${precalc_mod_md5})
+        message(FATAL_ERROR "The MD5 hash of the MOD file doesn't match the reference value.")
+    endif()
+
+    set(precalc_wav_md5_file "${CMAKE_CURRENT_SOURCE_DIR}/hash/${mod_name}.wav.md5")
+    if(EXISTS ${precalc_wav_md5_file})
+        file(READ ${precalc_wav_md5_file} precalc_wav_md5)
+    endif()
+    
+    add_test(NAME "PLAY: ${mod_name}"
+            COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/run-test.py"
+                            -c ${precalc_wav_md5}
+                            -e $<TARGET_FILE:${PROJECT_NAME}>
+                            -i ${mod_file})
+endforeach()
